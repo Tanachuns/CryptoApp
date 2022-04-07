@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas
-import base64
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from binance import Client
+import binance_key
 
 st.markdown('''# **Crypto Price App**
-A simple Cryptocurrency price from BinanceAPI''')
+A simple Cryptocurrency price from BinanceAPI by Tanarak Chuns''')
 
 st.header('**Selected Price**')
 
@@ -30,7 +32,7 @@ col7_selection = st.sidebar.selectbox('Price 7',dataframe.symbol,list(dataframe.
 col8_selection = st.sidebar.selectbox('Price 8',dataframe.symbol,list(dataframe.symbol).index('DOTBUSD'))
 col9_selection = st.sidebar.selectbox('Price 9',dataframe.symbol,list(dataframe.symbol).index('MATICBUSD'))
 
-
+#Table
 col1_df = dataframe[dataframe.symbol==col1_selection]
 col2_df = dataframe[dataframe.symbol==col2_selection]
 col3_df = dataframe[dataframe.symbol==col3_selection]
@@ -74,4 +76,28 @@ col3.metric(col9_selection,col9_price,col9_percent)
 
 st.header('**All Price**')
 st.dataframe(dataframe)
+
+st.header('**Graph**')
+plt.style.use('seaborn-bright')
+client = Client(binance_key.Public_key,binance_key.Private_key)
+graph_select = st.selectbox('Graph',dataframe.symbol,list(dataframe.symbol).index('BTCBUSD'))
+
+def getminutedata(symbol,interval,lookback):
+    frame = pandas.DataFrame(client.get_historical_klines(symbol,interval,lookback))
+    frame = frame.iloc[:,:6]
+    frame.columns = ['Time','Open','High','Low','Close','Volume']
+    frame = frame.set_index('Time')
+    frame = frame.astype(float)
+    return frame
+
+
+data = getminutedata(graph_select,'1m','120m')
+plt.cla()
+plt.plot(data.index,data.Close)
+plt.xlabel('Time')
+plt.ylabel('Price')
+plt.tight_layout()
+st.pyplot(plt)
+
+
 
