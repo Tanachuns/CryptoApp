@@ -1,4 +1,5 @@
 import streamlit as st
+import datetime
 import pandas
 import matplotlib.pyplot as plt
 from binance import Client
@@ -63,7 +64,12 @@ def naivebay():
     HighCount = []
     LowCount = []
     VolCount = []
+    time = []
+    now = datetime.datetime.now()
     for i in range(len(data.index)):
+        
+        now = now - datetime.timedelta(minutes=1)
+        time.append(now.strftime("%H:%M"))
         if data['High'].iloc[i] < data['High'].mean():
             HighCount.append('Lower')
         else: 
@@ -83,21 +89,36 @@ def naivebay():
         else: 
             count.append('Up')
 
+
     posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count(count[-1])/120)
     st.header('**Prediction**')
-    nextUp = ''
-    if posUp<=0.5:
-        if count[-1] == 'Up':
-            nextUp = 'Down'
-        elif count[-1] == 'Down':
-            nextUp = 'Up'
-        posUp = 1-posUp
-    else : 
-        nextUp = count[-1]   
+    time.reverse()
+   
+    def checkUpDown(preditc):
+        nextUp = ''
+        if preditc<=0.5:
+            if count[-1] == 'Up':
+                nextUp = 'Down'
+            
+            elif count[-1] == 'Down':
+                nextUp = 'Up'
+            preditc = 1-preditc
+        else : 
+            nextUp = count[-1]   
+        return nextUp,preditc
+    
+    
 
-    st.markdown('Propablity of Price '+ nextUp +" {0:.3%}".format(posUp))
+    if data['Open'].iloc[-1] > data['Open'].iloc[-2]:
+        result = 'Up'
+    else : result = 'Down'
+    pop,pop_percentage = checkUpDown(posUp)
+    
+    st.markdown('Propablity of Price '+ pop +" {0:.2%}".format(pop_percentage))
+    
+
     st.markdown('Table')
-    naiveTable = {'High':HighCount,'Low':LowCount,'Value':VolCount,'Nex Price':count}
+    naiveTable = {'Time':time,'High':HighCount,'Low':LowCount,'Value':VolCount,'Next Price':count,'Price':data['Open']}
     st.dataframe(pandas.DataFrame(data=naiveTable))
     st.markdown('''Higher = Higher than average.
                     Lower = Lower than average
