@@ -84,7 +84,7 @@ def naivebay():
         else: 
             VolCount.append('Higher')
 
-        if data['Open'].iloc[i] < data['Close'].iloc[i] :
+        if data['Open'].iloc[i] > data['Close'].iloc[i] :
             count.append('Down')
         else: 
             count.append('Up')
