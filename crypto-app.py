@@ -94,7 +94,7 @@ def naivebay():
                     Up = Price Up
                     Down = Price Down''')
     
-
+print(data)
 
 naivebay()
 
