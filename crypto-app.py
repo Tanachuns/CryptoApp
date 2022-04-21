@@ -39,7 +39,8 @@ st.dataframe(dataframe)
 
 st.header('**Graph**')
 plt.style.use('seaborn-bright')
-client = Client(st.secrets.Public_key,st.secrets.Private_key)
+# client = Client(st.secrets.Public_key,st.secrets.Private_key)
+client = Client(binance_key.Public_key,binance_key.Private_key)
 graph_select = st.selectbox('Graph',dataframe.symbol,list(dataframe.symbol).index('BTCBUSD'))
 def getminutedata(symbol,interval,lookback):
     frame = pandas.DataFrame(client.get_historical_klines(symbol,interval,lookback))
@@ -63,7 +64,7 @@ def naivebay():
     HighCount = []
     LowCount = []
     VolCount = []
-    for i in range(120):
+    for i in range(len(data.index)):
         if data['High'].iloc[i] < data['High'].mean():
             HighCount.append('Lower')
         else: 
@@ -85,9 +86,19 @@ def naivebay():
         
     posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count(count[-1])/120)
     st.header('**Prediction**')
-    st.markdown('Price '+count[-1] +"{0:.3%}".format(posUp))
+    nextUp = ''
+    if posUp<=0.5:
+        if count[-1] == 'Up':
+            nextUp = 'Down'
+        elif count[-1] == 'Down':
+            nextUp = 'Up'
+        posUp = 1-posUp
+    else : 
+        nextUp = count[-1]        
+        
+    st.markdown('Propablity of Price '+ nextUp +" {0:.3%}".format(posUp))
 
-
+    
     st.markdown('Table')
     naiveTable = {'High':HighCount,'Low':LowCount,'Value':VolCount,'Nex Price':count}
     st.dataframe(pandas.DataFrame(data=naiveTable))
@@ -95,8 +106,6 @@ def naivebay():
                     Lower = Lower than average
                     Up = Price Up
                     Down = Price Down''')
-    
-print(data)
 
 naivebay()
 
