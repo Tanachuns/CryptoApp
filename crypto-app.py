@@ -83,10 +83,10 @@ def naivebay():
         else: 
             count.append('Up')
         
-    posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count('Up')/120)
+    posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count(count[-1])/120)
     st.header('**Prediction**')
-    st.markdown('Price Up '+"{0:.3%}".format(posUp))
-    st.markdown('Price Down '+"{0:.3%}".format(1-posUp))
+    st.markdown('Price '+count[-1] +"{0:.3%}".format(posUp))
+
 
     st.markdown('Table')
     naiveTable = {'High':HighCount,'Low':LowCount,'Value':VolCount,'Nex Price':count}
