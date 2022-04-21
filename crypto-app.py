@@ -6,7 +6,9 @@ from binance import Client
 import binance_key
 
 st.markdown('''# **Crypto Price App**
-A simple Cryptocurrency price from BinanceAPI by Tanarak Chuns''')
+A simple Cryptocurrency price from BinanceAPI 
+by Tanarak Chuns 6106332 
+for CSC490 Rangsit University''')
 
 st.header('**Selected Price**')
 dataframe = pandas.read_json('https://api.binance.com/api/v3/ticker/24hr')
