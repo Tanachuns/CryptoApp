@@ -1,6 +1,8 @@
 import streamlit as st
 import datetime
 import pandas
+import numpy
+from csv import writer
 import matplotlib.pyplot as plt
 from binance import Client
 import binance_key
@@ -59,70 +61,79 @@ st.pyplot(plt)
 
 
 
-def naivebay():
-    count = []
-    HighCount = []
-    LowCount = []
-    VolCount = []
-    time = []
-    now = datetime.datetime.now()
-    for i in range(len(data.index)):
+
+count = []
+HighCount = []
+LowCount = []
+VolCount = []
+time = []
+now = datetime.datetime.now()
+for i in range(len(data.index)):
+    
+    now = now - datetime.timedelta(minutes=1)
+    time.append(now.strftime("%H:%M"))
+    if data['High'].iloc[i] < data['High'].mean():
+        HighCount.append('Lower')
+    else: 
+        HighCount.append('Higher')
+
+    if data['Low'].iloc[i] < data['Low'].mean():
+        LowCount.append('Lower')
+    else: 
+        LowCount.append('Higher')
+    if data['Volume'].iloc[i] < data['Volume'].mean():
+        VolCount.append('Lower')
+    else: 
+        VolCount.append('Higher')
+
+    if data['Open'].iloc[i] < data['Close'].iloc[i] :
+        count.append('Down')
+    else: 
+        count.append('Up')
+
+
+posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count(count[-1])/120)
+st.header('**Prediction**')
+time.reverse()
+
+def checkUpDown(preditc):
+    nextUp = ''
+    if preditc<=0.5:
+        if count[-1] == 'Up':
+            nextUp = 'Down'
         
-        now = now - datetime.timedelta(minutes=1)
-        time.append(now.strftime("%H:%M"))
-        if data['High'].iloc[i] < data['High'].mean():
-            HighCount.append('Lower')
-        else: 
-            HighCount.append('Higher')
+        elif count[-1] == 'Down':
+            nextUp = 'Up'
+        preditc = 1-preditc
+    else : 
+        nextUp = count[-1]   
+    return nextUp,preditc
 
-        if data['Low'].iloc[i] < data['Low'].mean():
-            LowCount.append('Lower')
-        else: 
-            LowCount.append('Higher')
-        if data['Volume'].iloc[i] < data['Volume'].mean():
-            VolCount.append('Lower')
-        else: 
-            VolCount.append('Higher')
+pop,pop_percentage = checkUpDown(posUp)
+print(posUp,count[-1])
+st.markdown('Propablity of Price '+ pop +" {0:.2%}".format(pop_percentage))
+result = data['Open'].iloc[-1] - data['Open'].iloc[-2]
+print('result'+ str(result))
 
-        if data['Open'].iloc[i] < data['Close'].iloc[i] :
-            count.append('Down')
-        else: 
-            count.append('Up')
+st.markdown('Table')
+naiveTable = {'Time':time,'High':HighCount,'Low':LowCount,'Value':VolCount,'Next Price':count,'Price':data['Open']}
+st.dataframe(pandas.DataFrame(data=naiveTable))
+st.markdown('''Higher = Higher than average.
+                Lower = Lower than average
+                Up = Price Up
+                Down = Price Down''')
 
 
-    posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count(count[-1])/120)
-    st.header('**Prediction**')
-    time.reverse()
-   
-    def checkUpDown(preditc):
-        nextUp = ''
-        if preditc<=0.5:
-            if count[-1] == 'Up':
-                nextUp = 'Down'
-            
-            elif count[-1] == 'Down':
-                nextUp = 'Up'
-            preditc = 1-preditc
-        else : 
-            nextUp = count[-1]   
-        return nextUp,preditc
-    
-    
 
-    if data['Open'].iloc[-1] > data['Open'].iloc[-2]:
-        result = 'Up'
-    else : result = 'Down'
-    pop,pop_percentage = checkUpDown(posUp)
-    
-    st.markdown('Propablity of Price '+ pop +" {0:.2%}".format(pop_percentage))
-    
 
-    st.markdown('Table')
-    naiveTable = {'Time':time,'High':HighCount,'Low':LowCount,'Value':VolCount,'Next Price':count,'Price':data['Open']}
-    st.dataframe(pandas.DataFrame(data=naiveTable))
-    st.markdown('''Higher = Higher than average.
-                    Lower = Lower than average
-                    Up = Price Up
-                    Down = Price Down''')
-naivebay()
+predicted_list  = [graph_select,datetime.datetime.now(),pop,numpy.sign(result)]
+with open('predicted.csv', 'a') as p_object:
+    writer_object = writer(p_object)
+    writer_object.writerow(predicted_list)
+    p_object.close()
+
+predicted_df = pandas.read_csv ('predicted.csv')
+print(predicted_df)
+
+
 
