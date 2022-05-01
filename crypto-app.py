@@ -6,7 +6,6 @@ from csv import writer
 import matplotlib.pyplot as plt
 from binance import Client
 
-
 st.markdown('''# **Crypto Price App**
 A simple Cryptocurrency price from BinanceAPI 
 by Tanarak Chuns 6106332 
@@ -59,9 +58,6 @@ plt.ylabel('Price')
 plt.tight_layout()
 st.pyplot(plt)
 
-
-
-
 count = []
 HighCount = []
 LowCount = []
@@ -90,7 +86,6 @@ for i in range(len(data.index)):
         count.append('Down')
     else: 
         count.append('Up')
-
 
 posUp = (HighCount.count(HighCount[-1])/120)*(LowCount.count(LowCount[-1])/120)*(count.count(count[-1])/120)
 st.header('**Prediction**')
@@ -123,9 +118,6 @@ st.markdown('''Higher = Higher than average.
                 Up = Price Up
                 Down = Price Down''')
 
-
-
-
 predicted_list  = [graph_select,datetime.datetime.now(),pop,numpy.sign(result)]
 with open('predicted.csv', 'a') as p_object:
     writer_object = writer(p_object)
@@ -134,6 +126,3 @@ with open('predicted.csv', 'a') as p_object:
 
 predicted_df = pandas.read_csv ('predicted.csv')
 print(predicted_df)
-
-
-
