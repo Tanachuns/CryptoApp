@@ -5,7 +5,7 @@ import numpy
 from csv import writer
 import matplotlib.pyplot as plt
 from binance import Client
-import binance_key
+
 
 st.markdown('''# **Crypto Price App**
 A simple Cryptocurrency price from BinanceAPI 
@@ -41,8 +41,8 @@ st.dataframe(dataframe)
 
 st.header('**Graph**')
 plt.style.use('seaborn-bright')
-# client = Client(st.secrets.Public_key,st.secrets.Private_key)
-client = Client(binance_key.Public_key,binance_key.Private_key)
+client = Client(st.secrets.Public_key,st.secrets.Private_key)
+# client = Client(binance_key.Public_key,binance_key.Private_key)
 graph_select = st.selectbox('Graph',dataframe.symbol,list(dataframe.symbol).index('BTCBUSD'))
 def getminutedata(symbol,interval,lookback):
     frame = pandas.DataFrame(client.get_historical_klines(symbol,interval,lookback))
